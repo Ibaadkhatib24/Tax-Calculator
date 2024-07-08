@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Tax Calculator</title>
+</head>
+<body>
+    <h1>Tax Calculator</h1>
+    <form action="/calculate" method="post">
+        <label for="income">Annual Income: </label>
+        <input type="text" id="income" name="income" required><br><br>
+        
+        <label for="credits">Total Tax Credits: </label>
+        <input type="text" id="credits" name="credits" required><br><br>
+        
+        <label for="itemized_deductions">Itemized Deductions (leave blank if not applicable): </label>
+        <input type="text" id="itemized_deductions" name="itemized_deductions"><br><br>
+        
+        <input type="submit" value="Calculate">
+    </form>
+</body>
+</html>

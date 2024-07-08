@@ -1,0 +1,48 @@
+from flask import Flask, request, render_template
+from tax_brackets import calculate_tax
+from deductions import get_standard_deduction
+from credits import apply_tax_credits
+import config
+
+app = Flask(__name__)
+
+@app.route('/')
+def index():
+    return render_template('index.html')
+
+@app.route('/calculate', methods=['POST'])
+def calculate():
+    try:
+        filing_status = config.status
+        income = float(request.form['income'].replace(',', ''))
+        credits = float(request.form['credits'].replace(',', ''))
+        
+        # Apply standard deduction or itemized deductions
+        if config.itemizing:
+            itemized_deductions = float(request.form['itemized_deductions'].replace(',', ''))
+            taxable_income = max(0, income - itemized_deductions)
+        else:
+            standard_deduction = get_standard_deduction(filing_status, config.over_65, config.spouse_over_65)
+            taxable_income = max(0, income - standard_deduction)
+        
+        # Calculate tax
+        tax = calculate_tax(taxable_income, filing_status)
+        
+        # Apply tax credits
+        final_tax = apply_tax_credits(tax, [credits], config.kids, config.dependents)
+        
+        result = {
+            "income": income,
+            "taxable_income": taxable_income,
+            "tax": tax,
+            "credits": credits,
+            "final_tax": final_tax
+        }
+        
+        return render_template('result.html', result=result)
+    
+    except Exception as e:
+        return str(e)
+
+if __name__ == "__main__":
+    app.run(debug=True)
